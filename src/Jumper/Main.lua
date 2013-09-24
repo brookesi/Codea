@@ -1,11 +1,14 @@
 -- JumperTest
 
+-- 1024 x 768 colour map
 local colourMap = readImage("Documents:Map1_Colour")
+-- 128 x 96 greyscale version of colour map
 local tileMap = readImage("Documents:Map1_Elevation_Tile")
 
 -- Use this function to perform your initial setup
 function setup()
     
+    -- Declare map and build from tile map
     local map = {}
     for y=tileMap.height, 1, -1 do
         map[y] = {}
@@ -13,12 +16,17 @@ function setup()
             -- Tilemap is greyscale, so just take r value as elevation
             map[y][x] = tileMap:get(x,y)
         end
-    end
+end
+ 
+    -- Jumper stuff
+    
+    -- Any value under 255 is walkable, e.g. the whole tile map is walkable
     local walkable = function(value) return value < 255 end
     local grid = Jumper.Grid(map, false)
 
     local myFinder = Jumper.Pathfinder(grid, 'ASTAR', walkable)
 
+    -- A heuristic function that adjusts the 'cost' by the elevation
     local h = function(nodeA, nodeB)
  
         local dx = math.abs(nodeA._x - nodeB._x)
@@ -34,6 +42,7 @@ function setup()
     local p = myFinder:getPath(5, 90, 70, 40)
 
     for node, count in p:nodes() do
+        -- Stuff to draw a dot
         for x=1,4 do
             for y=1,4 do
                 colourMap:set(((node:getX()-1)*8)+x, ((node:getY()-1)*8)+y, color(255,0,0))
